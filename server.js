@@ -2,11 +2,10 @@
 
 console.log('Proof of life');
 
-const { response } = require('express');
 // REQUIRES (for backend on servers; should go at very top)
 const express = require('express');
 require('dotenv').config();
-let date = require('.data/weather.json');
+let data = require('./data/weather.json');
 const cors = require('cors');
 
 // ONCE EXPRESS IS IN WE NEED TO USE IT
@@ -40,28 +39,29 @@ app.get('/hello', (request, response) => {
   response.status(200).send(`How did you get here ${firstName} ${lastName}?`);
 });
 
-app.get('/weather', (request, response) => {
-  try {
-    let lat = request.query.lat;
-    console.log(lat);
-    let lon = request.query.lon;
-    console.log(lon);
-    let searchQuery = request.query.searchQuery;
-    console.log(searchQuery);
+app.get('/weather', (request, response, next) => {
+  console.log(request);
+  let lat = request.query.lat;
+  console.log(lat);
+  let lon = request.query.lon;
+  console.log(lon);
+  let cityName = request.query.cityName;
+  console.log(cityName);
 
-    //TODO
-    let dataToGroom = data.find(city => city.lat === lat);
-    let dataToSend = new Forecast(dataToGroom);
-    response.status(200).send(dataToSend);
+  try {
+    let cityToGroom = data.find((city) => city.city_name === cityName);
+    let groomedData = cityToGroom.data.map((day) => new Forecast(day));
+    response.status(200).send(groomedData);
+
   } catch (error) {
     next(error);
   }
 });
 
 class Forecast {
-  constructor (weatherObj){
-    this.name = weatherObj.name;
-    this.breed = weatherObj.breed;
+  constructor(weatherObj) {
+    this.date = weatherObj.valid_date;
+    this.desc = weatherObj.weather.description;
   }
 }
 
