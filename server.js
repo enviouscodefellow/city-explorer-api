@@ -58,6 +58,8 @@ app.get('/weather', (request, response, next) => {
   }
 });
 
+
+
 class Forecast {
   constructor(weatherObj) {
     this.date = weatherObj.valid_date;
